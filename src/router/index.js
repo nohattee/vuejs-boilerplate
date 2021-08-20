@@ -1,14 +1,34 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
+import AdminLayout from "../layouts/AdminLayout.vue";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
-    name: "Home",
-    component: Home,
+    redirect: { name: "Dashboard" },
+    component: AdminLayout,
+    children: [
+      {
+        path: "dashboard",
+        name: "Dashboard",
+        component: () => import("@/views/Dashboard.vue"),
+        meta: { title: "Dashboard", icon: "dashboard", affix: true },
+      },
+      {
+        path: "user",
+        name: "User",
+        component: () => import("@/views/User.vue"),
+        meta: { title: "User", icon: "user", affix: true },
+      },
+      {
+        path: "project",
+        name: "Project",
+        component: () => import("@/views/Project.vue"),
+        meta: { title: "Project", icon: "project", affix: true },
+      },
+    ],
   },
   {
     path: "/about",
