@@ -1,7 +1,9 @@
 {
     "english": "English",
     "vietnam": "Vietnam",
-    "new_item": "New Item",
     "user": "User",
-    "actions": "Actions"
+    "post": "Post",
+    "dashboard": "Dashboard",
+    "actions": "Actions",
+    "created_at": "Created At"
 }

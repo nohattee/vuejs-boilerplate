@@ -15,7 +15,7 @@
     <v-divider></v-divider>
 
     <v-list dense>
-      <v-list-item v-for="item in items" :key="item.title" link>
+      <v-list-item v-for="item in items" :key="item.title" :to="item.link" link>
         <v-list-item-icon>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-item-icon>
@@ -35,8 +35,21 @@ export default {
     return {
       drawer: true,
       items: [
-        { title: "Dashboard", icon: "mdi-home-city" },
-        { title: "Users", icon: "mdi-account-group-outline" },
+        {
+          title: this.$t("global.dashboard"),
+          icon: "mdi-home-city",
+          link: "/",
+        },
+        {
+          title: this.$t("global.user"),
+          icon: "mdi-account-group-outline",
+          link: "/user",
+        },
+        {
+          title: this.$t("global.post"),
+          icon: "mdi-account-group-outline",
+          link: "/post",
+        },
       ],
       mini: true,
     };

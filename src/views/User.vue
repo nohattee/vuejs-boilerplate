@@ -13,56 +13,98 @@
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-              {{ $t("global.new_item") }}
+              {{ $t("user.new_item") }}
             </v-btn>
           </template>
           <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
+            <v-toolbar color="primary" dark>
+              <v-card-title>
+                <span class="text-h5">{{ formTitle }}</span>
+              </v-card-title>
+            </v-toolbar>
 
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field
-                      v-model="editedItem.name"
-                      label="Dessert name"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field
-                      v-model="editedItem.calories"
-                      label="Calories"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field
-                      v-model="editedItem.fat"
-                      label="Fat (g)"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field
-                      v-model="editedItem.carbs"
-                      label="Carbs (g)"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field
-                      v-model="editedItem.protein"
-                      label="Protein (g)"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
+            <validation-observer ref="observer" v-slot="{ invalid }">
+              <form @submit.prevent="save">
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12">
+                        <validation-provider
+                          v-slot="{ errors }"
+                          :name="$t('user.full_name')"
+                          rules="required"
+                        >
+                          <v-text-field
+                            v-model="editedItem.full_name"
+                            :label="$t('user.full_name')"
+                            :error-messages="errors"
+                            required
+                          ></v-text-field>
+                        </validation-provider>
+                      </v-col>
+                      <v-col cols="12">
+                        <validation-provider
+                          v-slot="{ errors }"
+                          :name="$t('user.full_name')"
+                          rules="required|email"
+                        >
+                          <v-text-field
+                            v-model="editedItem.email"
+                            :label="$t('user.email')"
+                            :error-messages="errors"
+                            required
+                          ></v-text-field>
+                        </validation-provider>
+                      </v-col>
+                      <v-col cols="12">
+                        <validation-provider
+                          v-slot="{ errors }"
+                          vid="password"
+                          :name="$t('user.password')"
+                          rules="required|min:6"
+                        >
+                          <v-text-field
+                            v-model="editedItem.password"
+                            :label="$t('user.password')"
+                            :error-messages="errors"
+                            required
+                          ></v-text-field>
+                        </validation-provider>
+                      </v-col>
+                      <v-col cols="12">
+                        <validation-provider
+                          v-slot="{ errors }"
+                          :name="$t('user.password_confirmation')"
+                          rules="confirmed:password"
+                        >
+                          <v-text-field
+                            v-model="editedItem.password_confirmation"
+                            :label="$t('user.password_confirmation')"
+                            :error-messages="errors"
+                            required
+                          ></v-text-field>
+                        </validation-provider>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
-            </v-card-actions>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="close">
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    color="blue darken-1"
+                    type="submit"
+                    :disabled="invalid"
+                    text
+                  >
+                    Save
+                  </v-btn>
+                </v-card-actions>
+              </form>
+            </validation-observer>
           </v-card>
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
@@ -96,9 +138,14 @@
 
 <script>
 import userAPI from "@/api/user";
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
   name: "User",
+  components: {
+    ValidationProvider,
+    ValidationObserver,
+  },
   data() {
     return {
       dialog: false,
@@ -107,12 +154,16 @@ export default {
       desserts: [],
       editedIndex: -1,
       editedItem: {
+        user_id: "",
         name: "",
         email: "",
+        password: "",
       },
       defaultItem: {
+        user_id: "",
         name: "",
         email: "",
+        password: "",
       },
     };
   },
@@ -121,18 +172,20 @@ export default {
     headers() {
       return [
         {
-          text: this.$t("user.id"),
+          text: this.$t("user.user_id"),
           align: "start",
           sortable: false,
-          value: "id",
+          value: "user_id",
         },
-        { text: this.$t("user.name"), value: "name" },
+        { text: this.$t("user.full_name"), value: "full_name" },
         { text: this.$t("user.email"), value: "email" },
         { text: this.$t("global.actions"), value: "actions", sortable: false },
       ];
     },
     formTitle() {
-      return this.editedIndex === -1 ? "New Item" : "Edit Item";
+      return this.editedIndex === -1
+        ? this.$t("user.new_item")
+        : this.$t("user.edit_item");
     },
   },
 
@@ -152,12 +205,19 @@ export default {
   methods: {
     async initialize() {
       const res = await userAPI.list();
-      this.users = res.data.data;
+      this.users = res.data.data.users;
     },
 
     editItem(item) {
       this.editedIndex = this.users.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.editedItem = Object.assign(
+        {},
+        {
+          ...item,
+          password: "",
+          password_confirmation: "",
+        }
+      );
       this.dialog = true;
     },
 
@@ -176,7 +236,10 @@ export default {
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedItem.password = "";
+        this.editedItem.password_confirmation = "";
         this.editedIndex = -1;
+        this.$refs.observer.reset()
       });
     },
 
@@ -188,11 +251,17 @@ export default {
       });
     },
 
-    save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
-      } else {
-        this.desserts.push(this.editedItem);
+    async save() {
+      try {
+        if (this.editedIndex > -1) {
+          await userAPI.update(this.editedItem);
+          Object.assign(this.users[this.editedIndex], this.editedItem);
+        } else {
+          await userAPI.create(this.editedItem);
+          this.users.push(this.editedItem);
+        }
+      } catch (e) {
+        console.error(e);
       }
       this.close();
     },

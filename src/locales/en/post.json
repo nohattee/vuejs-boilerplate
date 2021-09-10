@@ -1,0 +1,10 @@
+{
+    "new_item": "New Post",
+    "edit_item": "Edit Post",
+    "post_id": "ID",
+    "title": "Title",
+    "content": "Content",
+    "thumbnail": "Thumbnail",
+    "post_status": "Post Status",
+    "post_categories": "Post Categories"
+}

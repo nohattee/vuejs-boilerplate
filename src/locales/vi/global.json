@@ -1,7 +1,9 @@
 {
     "english": "Anh",
     "vietnam": "Việt Nam",
-    "new_item": "Tạo",
+    "post": "Bài viết",
     "user": "Nhân viên",
-    "actions": "Hành động"
+    "dashboard": "Bảng điều khiển",
+    "actions": "Actions",
+    "created_at": "Created At"
 }

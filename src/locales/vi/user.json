@@ -1,6 +1,10 @@
 {
-  "id": "ID",
-  "name": "Họ tên",
-  "email": "Email",
-  "created_at": "Ngày tạo"
+    "user": "Nhân viên",
+    "new_item": "Thêm nhân viên",
+    "edit_item": "Chỉnh sửa nhân viên",
+    "user_id": "ID",
+    "full_name": "Họ tên",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "password_confirmation": "Nhập lại mật khẩu"
 }

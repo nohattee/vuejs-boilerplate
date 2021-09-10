@@ -1,0 +1,6 @@
+{
+    "required": "This field can not be empty",
+    "email": "This field is invalid email",
+    "min": "The minimum is {length}",
+    "confirmed": "cc"
+}
