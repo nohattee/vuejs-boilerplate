@@ -9,11 +9,10 @@ export default {
     return request.post("users", data);
   },
 
-  update(data) {
-    const { user_id, full_name, email, password } = data;
+  update({ user_id, full_name, email, password }) {
     return request.put(`users/${user_id}`, {
       full_name,
-      email, 
+      email,
       password,
     });
   },

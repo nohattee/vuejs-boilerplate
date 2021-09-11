@@ -2,5 +2,5 @@
     "required": "Trường này không được để trống",
     "email": "Sai định dạng email",
     "min": "Ít nhất {length} kí tự",
-    "confirmed": "cc"
+    "confirmed": "{target} không giống nhau"
 }

@@ -4,6 +4,7 @@
     "post_id": "ID",
     "title": "Tiêu đề",
     "content": "Nội dung",
+    "slug": "URL",
     "thumbnail": "Thumbnail",
     "post_status": "Trạng thái",
     "post_categories": "Phân loại"

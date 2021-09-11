@@ -155,13 +155,13 @@ export default {
       editedIndex: -1,
       editedItem: {
         user_id: "",
-        name: "",
+        full_name: "",
         email: "",
         password: "",
       },
       defaultItem: {
         user_id: "",
-        name: "",
+        full_name: "",
         email: "",
         password: "",
       },
@@ -239,7 +239,7 @@ export default {
         this.editedItem.password = "";
         this.editedItem.password_confirmation = "";
         this.editedIndex = -1;
-        this.$refs.observer.reset()
+        this.$refs.observer.reset();
       });
     },
 

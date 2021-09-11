@@ -4,6 +4,7 @@
     "post_id": "ID",
     "title": "Title",
     "content": "Content",
+    "slug": "URL",
     "thumbnail": "Thumbnail",
     "post_status": "Post Status",
     "post_categories": "Post Categories"

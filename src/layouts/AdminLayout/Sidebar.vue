@@ -42,12 +42,12 @@ export default {
         },
         {
           title: this.$t("global.user"),
-          icon: "mdi-account-group-outline",
+          icon: "mdi-account-group",
           link: "/user",
         },
         {
           title: this.$t("global.post"),
-          icon: "mdi-account-group-outline",
+          icon: "mdi-post",
           link: "/post",
         },
       ],

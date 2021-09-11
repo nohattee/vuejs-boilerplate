@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import AdminLayout from "../layouts/AdminLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout";
 
 Vue.use(VueRouter);
 
