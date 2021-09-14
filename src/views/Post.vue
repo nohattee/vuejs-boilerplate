@@ -49,19 +49,19 @@
                         </validation-provider>
                       </v-col>
                       <v-col cols="12">
-                        <validation-provider
+                        <!-- <validation-provider
                           v-slot="{ errors }"
-                          :name="$t('post.title')"
-                          rules="required|content"
+                          :name="$t('post.content')"
                         >
-                          <editor v-model="editedItem.content" />
-                          <v-text-field
+                          <v-input
                             v-model="editedItem.content"
                             :label="$t('post.content')"
                             :error-messages="errors"
                             required
-                          ></v-text-field>
-                        </validation-provider>
+                          >
+                          </v-input>
+                        </validation-provider> -->
+                        <editor v-model="editedItem.content" />
                       </v-col>
                       <v-col cols="12">
                         <validation-provider
@@ -82,7 +82,7 @@
                         <validation-provider
                           v-slot="{ errors }"
                           :name="$t('post.thumbnail')"
-                          rules="confirmed:slug"
+                          rules="required"
                         >
                           <v-text-field
                             v-model="editedItem.thumbnail"
@@ -91,6 +91,7 @@
                             required
                           ></v-text-field>
                         </validation-provider>
+                        <media />
                       </v-col>
                     </v-row>
                   </v-container>
@@ -99,7 +100,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="close">
-                    Cancel
+                    {{ $t("global.cancel") }}
                   </v-btn>
                   <v-btn
                     color="blue darken-1"
@@ -107,7 +108,7 @@
                     :disabled="invalid"
                     text
                   >
-                    Save
+                    {{ $t("global.ok") }}
                   </v-btn>
                 </v-card-actions>
               </form>
@@ -145,6 +146,7 @@
 
 <script>
 import Editor from "@/components/Editor";
+import Media from "@/components/Media";
 import postAPI from "@/api/post";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
@@ -154,6 +156,7 @@ export default {
     ValidationProvider,
     ValidationObserver,
     Editor,
+    Media,
   },
   data() {
     return {
@@ -168,7 +171,7 @@ export default {
         content: "",
         slug: "",
         post_status: "",
-        thumnail: "",
+        thumbnail: "",
         post_categories: [],
       },
       defaultItem: {
@@ -177,7 +180,7 @@ export default {
         content: "",
         slug: "",
         post_status: "",
-        thumnail: "",
+        thumbnail: "",
         post_categories: [],
       },
     };

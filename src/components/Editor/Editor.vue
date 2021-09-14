@@ -1,13 +1,7 @@
 <template>
   <v-card>
     <v-toolbar flat>
-      <v-btn-toggle
-        v-model="toggle_multiple"
-        color="primary"
-        dense
-        group
-        multiple
-      >
+      <v-btn-toggle color="primary" dense group multiple>
         <v-btn :value="1" text>
           <v-icon>mdi-format-bold</v-icon>
         </v-btn>
@@ -27,7 +21,7 @@
 
       <div class="mx-4"></div>
 
-      <v-btn-toggle v-model="toggle_exclusive" color="primary" dense group>
+      <v-btn-toggle color="primary" dense group>
         <v-btn :value="1" text>
           <v-icon>mdi-format-align-left</v-icon>
         </v-btn>
@@ -62,38 +56,47 @@ export default {
   },
   data() {
     return {
-      editor: new Editor({
-        content: `Type here...
-        `,
-        extensions: [StarterKit],
-      }),
+      editor: null,
     };
   },
-  methods: {
-    loadImage: function (command) {
-      command({
-        src: "https://66.media.tumblr.com/dcd3d24b79d78a3ee0f9192246e727f1/tumblr_o00xgqMhPM1qak053o1_400.gif",
-      });
+  mounted() {
+    this.editor = new Editor({
+      extensions: [StarterKit],
+      content: this.modelValue,
+      onUpdate: () => {
+        // HTML
+        // this.$emit("update:modelValue", this.editor.getHTML());
+        this.$emit("input", this.editor.getHTML());
+
+        // JSON
+        // this.$emit('update:modelValue', this.editor.getJSON())
+      },
+    });
+  },
+  watch: {
+    modelValue(value) {
+      console.log("asasdasd");
+      // HTML
+      const isSame = this.editor.getHTML() === value;
+
+      // JSON
+      // const isSame = this.editor.getJSON().toString() === value.toString()
+
+      if (isSame) {
+        return;
+      }
+
+      this.editor.commands.setContent(value, false);
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.editor.destroy();
+  },
+  props: {
+    modelValue: {
+      type: String,
+      default: "",
+    },
   },
 };
 </script>
-<style>
-.editor-box > * {
-  border-color: grey;
-  border-style: solid;
-  border-width: 1px;
-}
-
-.is-active {
-  border-color: grey;
-  border-style: solid;
-  border-width: 1px;
-}
-/* *:focus {
-    outline: none;
-}  */
-</style>

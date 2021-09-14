@@ -92,7 +92,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="close">
-                    Cancel
+                    {{ $t("global.cancel") }}
                   </v-btn>
                   <v-btn
                     color="blue darken-1"
@@ -100,7 +100,7 @@
                     :disabled="invalid"
                     text
                   >
-                    Save
+                    {{ $t("global.ok") }}
                   </v-btn>
                 </v-card-actions>
               </form>
