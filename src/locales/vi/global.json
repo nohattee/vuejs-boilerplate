@@ -3,7 +3,13 @@
     "vietnam": "Việt Nam",
     "post": "Bài viết",
     "user": "Nhân viên",
+    "media": "Media",
     "dashboard": "Bảng điều khiển",
     "actions": "Hành động",
-    "created_at": "Created At"
+    "reset": "Làm mới",
+    "choose": "Chọn",
+    "cancel": "Hủy",
+    "ok": "OK",
+    "or": "hoặc",
+    "created_at": "Ngày tạo"
 }

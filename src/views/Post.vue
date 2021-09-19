@@ -79,7 +79,7 @@
                         </validation-provider>
                       </v-col>
                       <v-col cols="12">
-                        <validation-provider
+                        <!-- <validation-provider
                           v-slot="{ errors }"
                           :name="$t('post.thumbnail')"
                           rules="required"
@@ -90,8 +90,17 @@
                             :error-messages="errors"
                             required
                           ></v-text-field>
-                        </validation-provider>
-                        <media />
+                        </validation-provider> -->
+                        <v-input>
+                          <media v-model="image" />
+                        </v-input>
+                        <v-img
+                          :src="editedItem.thumbnail"
+                          lazy-src="https://picsum.photos/id/11/10/6"
+                          max-height="150"
+                          max-width="250"
+                          aspect-ratio="1"
+                        />
                       </v-col>
                     </v-row>
                   </v-container>
@@ -139,15 +148,17 @@
       <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize"> Reset </v-btn>
+      <v-btn color="primary" @click="initialize">
+        {{ $t("global.reset") }}
+      </v-btn>
     </template>
   </v-data-table>
 </template>
 
 <script>
+import postAPI from "@/api/post";
 import Editor from "@/components/Editor";
 import Media from "@/components/Media";
-import postAPI from "@/api/post";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
@@ -171,7 +182,7 @@ export default {
         content: "",
         slug: "",
         post_status: "",
-        thumbnail: "",
+        thumbnail: "https://picsum.photos/id/11/10/6",
         post_categories: [],
       },
       defaultItem: {
@@ -180,9 +191,10 @@ export default {
         content: "",
         slug: "",
         post_status: "",
-        thumbnail: "",
+        thumbnail: "https://picsum.photos/id/11/10/6",
         post_categories: [],
       },
+      image: null,
     };
   },
 
@@ -208,6 +220,9 @@ export default {
   },
 
   watch: {
+    image(value) {
+      this.editedItem.thumbnail = value.url;
+    },
     dialog(val) {
       val || this.close();
     },

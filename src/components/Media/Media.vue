@@ -1,34 +1,78 @@
 <template>
-  <v-dialog v-model="dialog" width="500">
+  <v-dialog v-model="dialog">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="primary" dark v-bind="attrs" v-on="on"> Open Dialog </v-btn>
+      <v-btn color="primary" dark v-bind="attrs" v-on="on">
+        {{ $t("media.open") }}
+      </v-btn>
     </template>
     <v-card>
-      <v-toolbar color="primary" dark>{{ $t("global.media") }}</v-toolbar>
+      <v-toolbar color="primary" dark>
+        <v-toolbar-title>{{ $t("global.media") }}</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-toolbar-items v-if="selectedFile">
+          <v-btn dark text @click="selectFile()">
+            {{ $t("global.choose") }}
+          </v-btn>
+        </v-toolbar-items>
+      </v-toolbar>
       <v-tabs color="deep-purple accent-4">
         <v-tab>{{ $t("media.upload") }}</v-tab>
         <v-tab>{{ $t("media.gallery") }}</v-tab>
 
         <v-tab-item>
-          <v-card-actions class="justify-center">
-            <v-btn> {{ $t("media.select_files") }} </v-btn>
-          </v-card-actions>
+          <v-sheet
+            class="d-flex justify-center ma-6"
+            :rounded="true"
+            color="grey lighten-3"
+            height="300"
+          >
+            <div class="my-auto text-center f-12">
+              <p class="text-h2">{{ $t("media.drop_files_here") }}</p>
+              <p>{{ $t("global.or") }}</p>
+              <v-spacer></v-spacer>
+              <v-btn @click="$refs.uploader.$refs.input.click()">
+                {{ $t("media.select_files") }}
+              </v-btn>
+              <v-file-input
+                ref="uploader"
+                multiple
+                class="d-none"
+                @change="onUploaderChange"
+              ></v-file-input>
+            </div>
+          </v-sheet>
         </v-tab-item>
 
         <v-tab-item>
-          <v-container fluid>
-            <v-row>
-              <v-col v-for="i in 6" :key="i" cols="12" md="4">
-                <v-img
-                  :src="`https://picsum.photos/500/300?image=${i * 2 * 5 + 10}`"
-                  :lazy-src="`https://picsum.photos/10/6?image=${
-                    i * n * 5 + 10
-                  }`"
-                  aspect-ratio="1"
-                ></v-img>
-              </v-col>
-            </v-row>
-          </v-container>
+          <v-sheet
+            class="d-flex justify-center ma-6 overflow-y-auto"
+            :rounded="true"
+            color="grey lighten-3"
+            height="300"
+          >
+            <v-container fluid>
+              <v-row v-if="files.length != 0">
+                <v-col v-for="file in files" :key="file.name" cols="3">
+                  <v-card
+                    :style="
+                      selectedFile == file
+                        ? 'border: 5px solid #4CAF50;'
+                        : 'border: 5px solid white;'
+                    "
+                  >
+                    <v-img
+                      @click="selectedFile = file"
+                      :src="file.url"
+                      :lazy-src="`https://picsum.photos/10/6?image=${
+                        1 * 1 * 5 + 10
+                      }`"
+                      aspect-ratio="1"
+                    />
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-sheet>
         </v-tab-item>
       </v-tabs>
     </v-card>
@@ -36,7 +80,38 @@
 </template>
 
 <script>
+import fileAPI from "@/api/file";
 export default {
   name: "Media",
+  data() {
+    return {
+      dialog: false,
+      selectedFile: null,
+      files: [],
+    };
+  },
+  async created() {
+    await this.initialize();
+  },
+  methods: {
+    async initialize() {
+      const res = await fileAPI.list();
+      this.files = res.data.data.files;
+    },
+    async onUploaderChange(files) {
+      await fileAPI.upload(files);
+      await this.initialize();
+    },
+    selectFile() {
+      this.dialog = false;
+      this.$emit("input", this.selectedFile);
+    },
+  },
+  props: {
+    modelValue: {
+      type: Object,
+      default: null,
+    },
+  },
 };
 </script>

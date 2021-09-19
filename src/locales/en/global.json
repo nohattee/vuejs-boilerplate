@@ -3,7 +3,13 @@
     "vietnam": "Vietnam",
     "user": "User",
     "post": "Post",
+    "media": "Media",
     "dashboard": "Dashboard",
     "actions": "Actions",
+    "global": "Reset",
+    "choose": "Choose",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "or": "or",
     "created_at": "Created At"
 }

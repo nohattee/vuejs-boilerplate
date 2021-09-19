@@ -75,7 +75,6 @@ export default {
   },
   watch: {
     modelValue(value) {
-      console.log("asasdasd");
       // HTML
       const isSame = this.editor.getHTML() === value;
 
