@@ -7,7 +7,7 @@
   >
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>{{ $t("global.user") }}</v-toolbar-title>
+        <v-toolbar-title>{{ $t("global.post") }}</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-dialog
@@ -49,24 +49,22 @@
                         </validation-provider>
                       </v-col>
                       <v-col cols="12">
-                        <!-- <validation-provider
+                        <validation-provider
                           v-slot="{ errors }"
                           :name="$t('post.content')"
+                          rules="required|min:200"
                         >
-                          <v-input
-                            v-model="editedItem.content"
+                          <editor
                             :label="$t('post.content')"
+                            v-model="editedItem.content"
                             :error-messages="errors"
                             required
-                          >
-                          </v-input>
-                        </validation-provider> -->
-                        <editor v-model="editedItem.content" />
+                          />
+                        </validation-provider>
                       </v-col>
                       <v-col cols="12">
                         <validation-provider
                           v-slot="{ errors }"
-                          vid="slug"
                           :name="$t('post.slug')"
                           rules="required|min:6"
                         >
@@ -91,6 +89,8 @@
                             required
                           ></v-text-field>
                         </validation-provider> -->
+                        <v-label>{{ $t("post.thumbnail") }}</v-label>
+
                         <v-input>
                           <media v-model="image" />
                         </v-input>
@@ -156,13 +156,14 @@
 </template>
 
 <script>
+import categoryAPI from "@/api/post_category";
 import postAPI from "@/api/post";
 import Editor from "@/components/Editor";
 import Media from "@/components/Media";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
-  name: "User",
+  name: "Post",
   components: {
     ValidationProvider,
     ValidationObserver,
@@ -174,7 +175,7 @@ export default {
       dialog: false,
       dialogDelete: false,
       posts: [],
-      desserts: [],
+      categories: [],
       editedIndex: -1,
       editedItem: {
         post_id: "",
@@ -205,10 +206,11 @@ export default {
           text: this.$t("post.post_id"),
           align: "start",
           sortable: false,
-          value: "post_id",
+          value: "id",
         },
         { text: this.$t("post.title"), value: "title" },
-        { text: this.$t("post.content"), value: "content" },
+        { text: this.$t("post.author"), value: "author.name" },
+        { text: this.$t("post.post_status"), value: "post_status" },
         { text: this.$t("global.actions"), value: "actions", sortable: false },
       ];
     },
@@ -224,7 +226,7 @@ export default {
       this.editedItem.thumbnail = value.url;
     },
     dialog(val) {
-      val || this.close();
+      return val || this.close();
     },
     dialogDelete(val) {
       val || this.closeDelete();
@@ -237,24 +239,36 @@ export default {
 
   methods: {
     async initialize() {
+      try {
+        this.fetchPosts();
+        this.fetchCategories();
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async fetchPosts() {
       const res = await postAPI.list();
       this.posts = res.data.data.posts;
     },
-
+    async fetchCategories() {
+      const res = await categoryAPI.list();
+      this.categories = res.data.data.post_categories;
+    },
     editItem(item) {
       this.editedIndex = this.posts.indexOf(item);
       this.editedItem = Object.assign({}, item);
+      console.log(this.editedItem);
       this.dialog = true;
     },
 
     deleteItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.posts.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
 
     deleteItemConfirm() {
-      this.desserts.splice(this.editedIndex, 1);
+      this.posts.splice(this.editedIndex, 1);
       this.closeDelete();
     },
 
@@ -263,7 +277,6 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedItem.slug = "";
-        this.editedItem.slug_confirmation = "";
         this.editedIndex = -1;
         this.$refs.observer.reset();
       });

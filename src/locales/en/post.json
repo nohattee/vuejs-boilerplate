@@ -4,8 +4,9 @@
     "post_id": "ID",
     "title": "Title",
     "content": "Content",
-    "slug": "URL",
+    "slug": "URL Slug",
+    "author": "Author",
     "thumbnail": "Thumbnail",
-    "post_status": "Post Status",
+    "post_status": "Status",
     "post_categories": "Post Categories"
 }

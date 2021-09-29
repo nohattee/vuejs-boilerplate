@@ -11,11 +11,15 @@ export default {
     return request.post(`${API_RESOURCE}`, data);
   },
 
-  update({ user_id, full_name, email, password }) {
-    return request.put(`${API_RESOURCE}/${user_id}`, {
-      full_name,
-      email,
-      password,
-    });
+  get(user_id) {
+    return request.get(`${API_RESOURCE}/${user_id}`);
+  },
+
+  update(user_id, data) {
+    return request.put(`${API_RESOURCE}/${user_id}`, data);
+  },
+
+  delete(user_id) {
+    return request.delete(`${API_RESOURCE}/${user_id}`);
   },
 };

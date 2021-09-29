@@ -1,49 +1,51 @@
 <template>
-  <v-card>
-    <v-toolbar flat>
-      <v-btn-toggle color="primary" dense group multiple>
-        <v-btn :value="1" text>
-          <v-icon>mdi-format-bold</v-icon>
-        </v-btn>
+  <v-input class="editor" v-bind="$attrs">
+    <v-card width="100%">
+      <v-toolbar flat>
+        <v-btn-toggle color="primary" dense group multiple>
+          <v-btn :value="1" text>
+            <v-icon>mdi-format-bold</v-icon>
+          </v-btn>
 
-        <v-btn :value="2" text>
-          <v-icon>mdi-format-italic</v-icon>
-        </v-btn>
+          <v-btn :value="2" text>
+            <v-icon>mdi-format-italic</v-icon>
+          </v-btn>
 
-        <v-btn :value="3" text>
-          <v-icon>mdi-format-underline</v-icon>
-        </v-btn>
+          <v-btn :value="3" text>
+            <v-icon>mdi-format-underline</v-icon>
+          </v-btn>
 
-        <v-btn :value="4" text>
-          <v-icon>mdi-format-color-fill</v-icon>
-        </v-btn>
-      </v-btn-toggle>
+          <v-btn :value="4" text>
+            <v-icon>mdi-format-color-fill</v-icon>
+          </v-btn>
+        </v-btn-toggle>
 
-      <div class="mx-4"></div>
+        <div class="mx-4"></div>
 
-      <v-btn-toggle color="primary" dense group>
-        <v-btn :value="1" text>
-          <v-icon>mdi-format-align-left</v-icon>
-        </v-btn>
+        <v-btn-toggle color="primary" dense group>
+          <v-btn :value="1" text>
+            <v-icon>mdi-format-align-left</v-icon>
+          </v-btn>
 
-        <v-btn :value="2" text>
-          <v-icon>mdi-format-align-center</v-icon>
-        </v-btn>
+          <v-btn :value="2" text>
+            <v-icon>mdi-format-align-center</v-icon>
+          </v-btn>
 
-        <v-btn :value="3" text>
-          <v-icon>mdi-format-align-right</v-icon>
-        </v-btn>
+          <v-btn :value="3" text>
+            <v-icon>mdi-format-align-right</v-icon>
+          </v-btn>
 
-        <v-btn :value="4" text>
-          <v-icon>mdi-format-align-justify</v-icon>
-        </v-btn>
-      </v-btn-toggle>
-    </v-toolbar>
-    <v-divider></v-divider>
-    <v-card-text>
-      <editor-content :editor="editor" />
-    </v-card-text>
-  </v-card>
+          <v-btn :value="4" text>
+            <v-icon>mdi-format-align-justify</v-icon>
+          </v-btn>
+        </v-btn-toggle>
+      </v-toolbar>
+      <v-divider></v-divider>
+      <v-card-text>
+        <editor-content :editor="editor" />
+      </v-card-text>
+    </v-card>
+  </v-input>
 </template>
 
 <script>
@@ -54,6 +56,12 @@ export default {
   components: {
     EditorContent,
   },
+  props: {
+    value: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       editor: null,
@@ -62,7 +70,7 @@ export default {
   mounted() {
     this.editor = new Editor({
       extensions: [StarterKit],
-      content: this.modelValue,
+      content: this.value,
       onUpdate: () => {
         // HTML
         // this.$emit("update:modelValue", this.editor.getHTML());
@@ -74,7 +82,7 @@ export default {
     });
   },
   watch: {
-    modelValue(value) {
+    value(value) {
       // HTML
       const isSame = this.editor.getHTML() === value;
 
@@ -91,11 +99,13 @@ export default {
   beforeUnmount() {
     this.editor.destroy();
   },
-  props: {
-    modelValue: {
-      type: String,
-      default: "",
-    },
-  },
 };
 </script>
+
+<style>
+.editor .v-input__slot {
+  flex-direction: column;
+  grid-gap: 7px;
+  align-items: flex-start;
+}
+</style>
