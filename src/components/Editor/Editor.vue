@@ -2,42 +2,20 @@
   <v-input class="editor" v-bind="$attrs">
     <v-card width="100%">
       <v-toolbar flat>
-        <v-btn-toggle color="primary" dense group multiple>
-          <v-btn :value="1" text>
-            <v-icon>mdi-format-bold</v-icon>
-          </v-btn>
-
-          <v-btn :value="2" text>
-            <v-icon>mdi-format-italic</v-icon>
-          </v-btn>
-
-          <v-btn :value="3" text>
-            <v-icon>mdi-format-underline</v-icon>
-          </v-btn>
-
-          <v-btn :value="4" text>
-            <v-icon>mdi-format-color-fill</v-icon>
-          </v-btn>
-        </v-btn-toggle>
-
-        <div class="mx-4"></div>
-
-        <v-btn-toggle color="primary" dense group>
-          <v-btn :value="1" text>
-            <v-icon>mdi-format-align-left</v-icon>
-          </v-btn>
-
-          <v-btn :value="2" text>
-            <v-icon>mdi-format-align-center</v-icon>
-          </v-btn>
-
-          <v-btn :value="3" text>
-            <v-icon>mdi-format-align-right</v-icon>
-          </v-btn>
-
-          <v-btn :value="4" text>
-            <v-icon>mdi-format-align-justify</v-icon>
-          </v-btn>
+        <v-btn-toggle
+          v-model="toggle_multiple"
+          color="primary"
+          dense
+          group
+          multiple
+        >
+          <template v-for="(item, index) in items">
+            <v-btn :key="index" :value="index" text @click="item.action">
+              <v-icon>
+                {{ item.icon }}
+              </v-icon>
+            </v-btn>
+          </template>
         </v-btn-toggle>
       </v-toolbar>
       <v-divider></v-divider>
@@ -51,6 +29,8 @@
 <script>
 import { Editor, EditorContent } from "@tiptap/vue-2";
 import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
 
 export default {
   components: {
@@ -64,12 +44,59 @@ export default {
   },
   data() {
     return {
+      toggle_multiple: [],
       editor: null,
+      items: [
+        {
+          icon: "mdi-format-bold",
+          title: "Bold",
+          action: () => this.editor.chain().focus().toggleBold().run(),
+          isActive: () => this.editor.isActive("bold"),
+        },
+        {
+          icon: "mdi-format-italic",
+          title: "Italic",
+          action: () => this.editor.chain().focus().toggleItalic().run(),
+          isActive: () => this.editor.isActive("italic"),
+        },
+        {
+          icon: "mdi-format-underline",
+          title: "Underline",
+          action: () => this.editor.chain().focus().toggleUnderline().run(),
+          isActive: () => this.editor.isActive("underline"),
+        },
+        {
+          icon: "mdi-format-align-left",
+          title: "Left",
+          action: () => this.editor.chain().focus().setTextAlign("left").run(),
+          isActive: () => this.editor.isActive({ textAlign: "left" }),
+        },
+        {
+          icon: "mdi-format-align-center",
+          title: "Center",
+          action: () =>
+            this.editor.chain().focus().setTextAlign("center").run(),
+          isActive: () => this.editor.isActive({ textAlign: "center" }),
+        },
+        {
+          icon: "mdi-format-align-justify",
+          title: "Justify",
+          action: () =>
+            this.editor.chain().focus().setTextAlign("justify").run(),
+          isActive: () => this.editor.isActive({ textAlign: "justify" }),
+        },
+      ],
     };
   },
   mounted() {
     this.editor = new Editor({
-      extensions: [StarterKit],
+      extensions: [
+        StarterKit,
+        Underline,
+        TextAlign.configure({
+          types: ["heading", "paragraph"],
+        }),
+      ],
       content: this.value,
       onUpdate: () => {
         // HTML
@@ -92,11 +119,12 @@ export default {
       if (isSame) {
         return;
       }
-
+      this.toggle_multiple = [];
       this.editor.commands.setContent(value, false);
     },
   },
   beforeUnmount() {
+    console.log("asd");
     this.editor.destroy();
   },
 };
