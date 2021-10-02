@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog">
+  <v-dialog v-model="dialog" max-width="600">
     <template v-slot:activator="{ on, attrs }">
       <v-btn color="primary" dark v-bind="attrs" v-on="on">
         {{ $t("media.open") }}
@@ -9,17 +9,20 @@
       <v-toolbar color="primary" dark>
         <v-toolbar-title>{{ $t("global.media") }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-toolbar-items v-if="selectedFile">
-          <v-btn dark text @click="selectFile()">
+        <v-toolbar-items>
+          <v-btn dark text @click="dialog = false">
+            {{ $t("global.cancel") }}
+          </v-btn>
+          <v-btn dark text v-if="selectedFile" @click="selectFile()">
             {{ $t("global.choose") }}
           </v-btn>
         </v-toolbar-items>
       </v-toolbar>
-      <v-tabs color="deep-purple accent-4">
-        <v-tab>{{ $t("media.upload") }}</v-tab>
-        <v-tab>{{ $t("media.gallery") }}</v-tab>
+      <v-tabs v-model="tab" color="deep-purple accent-4">
+        <v-tab href="#upload">{{ $t("media.upload") }}</v-tab>
+        <v-tab href="#gallery">{{ $t("media.gallery") }}</v-tab>
 
-        <v-tab-item>
+        <v-tab-item value="upload">
           <v-sheet
             class="d-flex justify-center ma-6"
             :rounded="true"
@@ -30,7 +33,11 @@
               <p class="text-h2">{{ $t("media.drop_files_here") }}</p>
               <p>{{ $t("global.or") }}</p>
               <v-spacer></v-spacer>
-              <v-btn @click="$refs.uploader.$refs.input.click()">
+              <v-btn
+                :disabled="loadingUpload"
+                :loading="loadingUpload"
+                @click="$refs.uploader.$refs.input.click()"
+              >
                 {{ $t("media.select_files") }}
               </v-btn>
               <v-file-input
@@ -43,7 +50,7 @@
           </v-sheet>
         </v-tab-item>
 
-        <v-tab-item>
+        <v-tab-item value="gallery">
           <v-sheet
             class="d-flex justify-center ma-6 overflow-y-auto"
             :rounded="true"
@@ -66,7 +73,6 @@
                       :lazy-src="`https://picsum.photos/10/6?image=${
                         1 * 1 * 5 + 10
                       }`"
-                      aspect-ratio="1"
                     />
                   </v-card>
                 </v-col>
@@ -85,8 +91,10 @@ export default {
   name: "Media",
   data() {
     return {
+      tab: "gallery",
       dialog: false,
       selectedFile: null,
+      loadingUpload: false,
       files: [],
     };
   },
@@ -99,8 +107,11 @@ export default {
       this.files = res.data.data.files;
     },
     async onUploaderChange(files) {
+      this.loadingUpload = true;
       await fileAPI.upload(files);
       await this.initialize();
+      this.tab = "gallery";
+      this.loadingUpload = false;
     },
     selectFile() {
       this.dialog = false;

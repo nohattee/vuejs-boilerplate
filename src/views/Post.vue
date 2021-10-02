@@ -41,12 +41,48 @@
                           rules="required"
                         >
                           <v-text-field
+                            @change="
+                              if (editedItem.slug === '')
+                                editedItem.slug = editedItem.title
+                                  .toLowerCase()
+                                  .normalize('NFD')
+                                  .replace(/đ/g, 'd')
+                                  .replace(/[\u0300-\u036f]/g, '')
+                                  .replace(/ /g, '-')
+                                  .replace(/[^\w-]+/g, '');
+                            "
                             v-model="editedItem.title"
                             :label="$t('post.title')"
                             :error-messages="errors"
                             required
                           ></v-text-field>
                         </validation-provider>
+                      </v-col>
+                      <v-col cols="12">
+                        <validation-provider
+                          v-slot="{ errors }"
+                          :name="$t('post.slug')"
+                        >
+                          <v-text-field
+                            v-model="editedItem.slug"
+                            :label="$t('post.slug')"
+                            :error-messages="errors"
+                            required
+                          ></v-text-field>
+                        </validation-provider>
+                      </v-col>
+                      <v-col cols="12">
+                        <v-label>{{ $t("post.thumbnail") }}</v-label>
+                        <v-input>
+                          <media v-model="image" />
+                        </v-input>
+                        <v-img
+                          :src="editedItem.thumbnail"
+                          lazy-src="https://picsum.photos/id/11/10/6"
+                          max-height="150"
+                          max-width="250"
+                          aspect-ratio="1"
+                        />
                       </v-col>
                       <v-col cols="12">
                         <validation-provider
@@ -62,53 +98,17 @@
                           />
                         </validation-provider>
                       </v-col>
-                      <v-col cols="12">
-                        <validation-provider
-                          v-slot="{ errors }"
-                          :name="$t('post.slug')"
-                          rules="required|min:6"
-                        >
-                          <v-text-field
-                            v-model="editedItem.slug"
-                            :label="$t('post.slug')"
-                            :error-messages="errors"
-                            required
-                          ></v-text-field>
-                        </validation-provider>
-                      </v-col>
-                      <v-col cols="12">
-                        <!-- <validation-provider
-                          v-slot="{ errors }"
-                          :name="$t('post.thumbnail')"
-                          rules="required"
-                        >
-                          <v-text-field
-                            v-model="editedItem.thumbnail"
-                            :label="$t('post.thumbnail')"
-                            :error-messages="errors"
-                            required
-                          ></v-text-field>
-                        </validation-provider> -->
-                        <v-label>{{ $t("post.thumbnail") }}</v-label>
-
-                        <v-input>
-                          <media v-model="image" />
-                        </v-input>
-                        <v-img
-                          :src="editedItem.thumbnail"
-                          lazy-src="https://picsum.photos/id/11/10/6"
-                          max-height="150"
-                          max-width="250"
-                          aspect-ratio="1"
-                        />
-                      </v-col>
                     </v-row>
                   </v-container>
                 </v-card-text>
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="close">
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="dialogCloseItemConfirm = true"
+                  >
                     {{ $t("global.cancel") }}
                   </v-btn>
                   <v-btn
@@ -141,7 +141,28 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-dialog v-model="dialogCloseItemConfirm" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5"
+              >Are you sure you want to close this post?</v-card-title
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="dialogCloseItemConfirm = false"
+                >Cancel</v-btn
+              >
+              <v-btn color="blue darken-1" text @click="close">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-toolbar>
+    </template>
+    <template v-slot:item.thumbnail="{ item }">
+      <v-img max-height="100" max-width="200" :src="item.thumbnail"></v-img>
     </template>
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
@@ -174,25 +195,28 @@ export default {
     return {
       dialog: false,
       dialogDelete: false,
+      dialogCloseItemConfirm: false,
       posts: [],
       categories: [],
       editedIndex: -1,
       editedItem: {
         post_id: "",
         title: "",
-        content: "",
+        content: "Writing something...",
         slug: "",
-        post_status: "",
+        post_status: "private",
         thumbnail: "https://picsum.photos/id/11/10/6",
+        author_id: 1,
         post_categories: [],
       },
       defaultItem: {
         post_id: "",
         title: "",
-        content: "",
+        content: "Writing something...",
         slug: "",
-        post_status: "",
+        post_status: "private",
         thumbnail: "https://picsum.photos/id/11/10/6",
+        author_id: 1,
         post_categories: [],
       },
       image: null,
@@ -209,7 +233,7 @@ export default {
           value: "id",
         },
         { text: this.$t("post.title"), value: "title" },
-        { text: this.$t("post.author"), value: "author.name" },
+        { text: this.$t("post.thumbnail"), value: "thumbnail" },
         { text: this.$t("post.post_status"), value: "post_status" },
         { text: this.$t("global.actions"), value: "actions", sortable: false },
       ];
@@ -226,7 +250,7 @@ export default {
       this.editedItem.thumbnail = value.url;
     },
     dialog(val) {
-      return val || this.close();
+      val || this.close();
     },
     dialogDelete(val) {
       val || this.closeDelete();
@@ -257,31 +281,26 @@ export default {
     editItem(item) {
       this.editedIndex = this.posts.indexOf(item);
       this.editedItem = Object.assign({}, item);
-      console.log(this.editedItem);
       this.dialog = true;
     },
-
     deleteItem(item) {
       this.editedIndex = this.posts.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
-
     deleteItemConfirm() {
       this.posts.splice(this.editedIndex, 1);
       this.closeDelete();
     },
-
     close() {
+      this.dialogCloseItemConfirm = false;
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedItem.slug = "";
         this.editedIndex = -1;
         this.$refs.observer.reset();
       });
     },
-
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
