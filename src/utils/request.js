@@ -1,6 +1,6 @@
 import axios from "axios";
 import store from "@/store";
-import router from "@/router";
+// import router from "@/router";
 
 const instance = axios.create({
   baseURL: process.env.VUE_APP_BASE_URL,
@@ -29,12 +29,12 @@ instance.interceptors.response.use(
     return response.data;
   },
   function (error) {
-    if (error.response) {
-      if (error.response.status === 401) {
-        store.commit("currentUser/SET_TOKEN", "");
-        router.push({ name: "Login" });
-      }
-    }
+    // if (error.response) {
+    //   if (error.response.status === 401) {
+    //     store.commit("currentUser/SET_TOKEN", "");
+    //     router.push({ name: "Login" });
+    //   }
+    // }
     return Promise.reject(error);
   }
 );

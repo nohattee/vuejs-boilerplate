@@ -114,7 +114,6 @@ export default {
       this.$store
         .dispatch("currentUser/login", this.form)
         .then(() => {
-          console.log(this.$store.state.currentUser.token);
           this.$router.push({
             path: this.redirect || "/",
             query: this.otherQuery,

@@ -33,7 +33,6 @@ const actions = {
         .login({ email: email.trim(), password: password })
         .then((response) => {
           const { data } = response;
-          console.log(data);
           commit("SET_TOKEN", data.access_token);
           commit("SET_NAME", data.user.name);
           commit("SET_EMAIL", data.user.email);
