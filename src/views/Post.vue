@@ -177,8 +177,8 @@
 </template>
 
 <script>
-import categoryAPI from "@/api/post_category";
 import postAPI from "@/api/post";
+import categoryAPI from "@/api/post-category";
 import Editor from "@/components/Editor";
 import Media from "@/components/Media";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
@@ -272,11 +272,11 @@ export default {
     },
     async fetchPosts() {
       const res = await postAPI.list();
-      this.posts = res.data.data.posts;
+      this.posts = res.data.posts;
     },
     async fetchCategories() {
       const res = await categoryAPI.list();
-      this.categories = res.data.data.post_categories;
+      this.categories = res.data.post_categories;
     },
     editItem(item) {
       this.editedIndex = this.posts.indexOf(item);

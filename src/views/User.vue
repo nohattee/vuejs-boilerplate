@@ -179,7 +179,7 @@ export default {
           sortable: false,
           value: "user_id",
         },
-        { text: this.$t("user.full_name"), value: "full_name" },
+        { text: this.$t("user.full_name"), value: "name" },
         { text: this.$t("user.email"), value: "email" },
         { text: this.$t("global.actions"), value: "actions", sortable: false },
       ];
@@ -207,7 +207,7 @@ export default {
   methods: {
     async initialize() {
       const res = await userAPI.list();
-      this.users = res.data.data.users;
+      this.users = res.data.users;
     },
 
     editItem(item) {

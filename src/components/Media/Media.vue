@@ -60,7 +60,7 @@
             <v-container fluid>
               <v-row v-if="files.length != 0">
                 <v-col v-for="file in files" :key="file.name" cols="3">
-                  <v-card
+                  <div
                     :style="
                       selectedFile == file
                         ? 'border: 5px solid #4CAF50;'
@@ -74,7 +74,7 @@
                         1 * 1 * 5 + 10
                       }`"
                     />
-                  </v-card>
+                  </div>
                 </v-col>
               </v-row>
             </v-container>
@@ -101,10 +101,17 @@ export default {
   async created() {
     await this.initialize();
   },
+  watch: {
+    dialog(val) {
+      if (!val) {
+        this.selectedFile = null;
+      }
+    },
+  },
   methods: {
     async initialize() {
       const res = await fileAPI.list();
-      this.files = res.data.data.files;
+      this.files = res.data.files;
     },
     async onUploaderChange(files) {
       this.loadingUpload = true;
@@ -116,6 +123,7 @@ export default {
     selectFile() {
       this.dialog = false;
       this.$emit("input", this.selectedFile);
+      this.selectedFile = null;
     },
   },
   props: {

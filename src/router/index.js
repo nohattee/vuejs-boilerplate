@@ -2,9 +2,17 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import AdminLayout from "@/layouts/AdminLayout";
 
+import store from "@/store";
+
 Vue.use(VueRouter);
 
 const routes = [
+  {
+    path: "/login",
+    name: "Login",
+    component: () => import("@/views/Login.vue"),
+    meta: { title: "Login", icon: "login", affix: true },
+  },
   {
     path: "/",
     redirect: { name: "Dashboard" },
@@ -45,6 +53,23 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const token = store.state.currentUser.token;
+  if (token) {
+    if (to.path === "/login") {
+      next({ path: "/" });
+    } else {
+      next();
+    }
+  } else {
+    if (to.path === "/login") {
+      next();
+    } else {
+      next(`/login?redirect=${to.path}`);
+    }
+  }
 });
 
 export default router;

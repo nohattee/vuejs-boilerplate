@@ -1,5 +1,6 @@
 import axios from "axios";
 import store from "@/store";
+import router from "@/router";
 
 const instance = axios.create({
   baseURL: process.env.VUE_APP_BASE_URL,
@@ -8,8 +9,9 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    if (store.state.user.token) {
-      config.headers["Authorization"] = store.state.user.token;
+    if (store.state.currentUser.token) {
+      config.headers["Authorization"] =
+        "Bearer " + store.state.currentUser.token;
     }
 
     if (typeof config.headers["Content-Type"] === "undefined") {
@@ -22,11 +24,17 @@ instance.interceptors.request.use(
   }
 );
 
-axios.interceptors.response.use(
+instance.interceptors.response.use(
   function (response) {
-    return response;
+    return response.data;
   },
   function (error) {
+    if (error.response) {
+      if (error.response.status === 401) {
+        store.commit("currentUser/SET_TOKEN", "");
+        router.push({ name: "Login" });
+      }
+    }
     return Promise.reject(error);
   }
 );
