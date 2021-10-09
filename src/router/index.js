@@ -30,11 +30,24 @@ const routes = [
         component: () => import("@/views/User.vue"),
         meta: { title: "User", icon: "user", affix: true },
       },
+    ],
+  },
+  {
+    path: "/cms",
+    redirect: { name: "Post" },
+    component: AdminLayout,
+    children: [
       {
         path: "post",
         name: "Post",
-        component: () => import("@/views/Post.vue"),
+        component: () => import("@/views/CMS/Post.vue"),
         meta: { title: "Post", icon: "post", affix: true },
+      },
+      {
+        path: "category",
+        name: "Post Category",
+        component: () => import("@/views/CMS/Category.vue"),
+        meta: { title: "Post Category", icon: "post-category", affix: true },
       },
     ],
   },
