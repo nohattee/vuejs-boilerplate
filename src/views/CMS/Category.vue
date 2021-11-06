@@ -1,272 +1,149 @@
 <template>
-  <v-card elevation="0">
-    <v-card-title>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+  <v-card>
+    <v-card-title class="indigo white--text text-h5">
+      {{ $t("global.post_category") }}
     </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="posts"
-      :search="search"
-      sort-by="calories"
-      class="elevation-1"
-    >
-      <template v-slot:top>
-        <v-toolbar flat>
-          <v-toolbar-title>{{ $t("global.post_category") }}</v-toolbar-title>
-          <v-divider class="mx-4" inset vertical></v-divider>
-          <v-spacer></v-spacer>
-          <v-dialog
-            v-model="dialog"
-            fullscreen
-            hide-overlay
-            transition="dialog-bottom-transition"
-            max-width="500px"
+    <v-row class="pa-4" justify="space-between">
+      <v-col cols="4">
+        <v-treeview
+          :active.sync="active"
+          :items="categories"
+          item-children="descendants"
+          color="warning"
+          activatable
+          transition
+          return-object
+        >
+        </v-treeview>
+      </v-col>
+      <v-divider vertical></v-divider>
+      <v-col class="d-flex text-center">
+        <v-scroll-y-transition mode="out-in">
+          <v-card
+            class="pt-6 mx-auto"
+            flat
+            :key="selectedCategory ? selectedCategory.id : 0"
           >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-                {{ $t("post.new_item") }}
-              </v-btn>
-            </template>
-            <v-card>
-              <v-toolbar color="primary" dark>
-                <v-card-title>
-                  <span class="text-h5">{{ formTitle }}</span>
-                </v-card-title>
-              </v-toolbar>
+            <v-window v-model="step">
+              <v-window-item :value="1">
+                <v-card-text class="d-flex flex-column justify-center">
+                  <v-btn class="mb-3" color="primary" @click="step++">{{
+                    addBtnTitle
+                  }}</v-btn>
+                  <v-btn v-if="selectedCategory" @click="editItem(active[0])">{{
+                    $t("post_category.edit_item")
+                  }}</v-btn>
+                </v-card-text>
+              </v-window-item>
 
-              <validation-observer ref="observer" v-slot="{ invalid }">
-                <form @submit.prevent="save">
-                  <v-card-text>
-                    <v-container>
-                      <v-row>
-                        <v-col cols="12">
-                          <validation-provider
-                            v-slot="{ errors }"
-                            :name="$t('post.title')"
-                            rules="required"
-                          >
-                            <v-text-field
-                              @change="
-                                if (editedItem.slug === '')
-                                  editedItem.slug = editedItem.title
-                                    .toLowerCase()
-                                    .normalize('NFD')
-                                    .replace(/đ/g, 'd')
-                                    .replace(/[\u0300-\u036f]/g, '')
-                                    .replace(/ /g, '-')
-                                    .replace(/[^\w-]+/g, '');
-                              "
-                              v-model="editedItem.title"
-                              :label="$t('post.title')"
-                              :error-messages="errors"
-                              required
-                            ></v-text-field>
-                          </validation-provider>
-                        </v-col>
-                        <v-col cols="12">
-                          <validation-provider
-                            v-slot="{ errors }"
-                            :name="$t('post.slug')"
-                          >
-                            <v-text-field
-                              v-model="editedItem.slug"
-                              :label="$t('post.slug')"
-                              :error-messages="errors"
-                              required
-                            ></v-text-field>
-                          </validation-provider>
-                        </v-col>
-                        <v-col cols="12">
-                          <v-label>{{ $t("post.thumbnail") }}</v-label>
-                          <v-input>
-                            <media v-model="image" />
-                          </v-input>
-                          <v-img
-                            :src="editedItem.thumbnail"
-                            lazy-src="https://picsum.photos/id/11/10/6"
-                            max-height="150"
-                            max-width="250"
-                            aspect-ratio="1"
-                          />
-                        </v-col>
-                        <v-col cols="12">
-                          <validation-provider
-                            v-slot="{ errors }"
-                            :name="$t('post.content')"
-                            rules="required|min:200"
-                          >
-                            <editor
-                              :label="$t('post.content')"
-                              v-model="editedItem.content"
-                              :error-messages="errors"
-                              required
-                            />
-                          </validation-provider>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
+              <v-window-item :value="2">
+                <validation-observer ref="observer" v-slot="{ invalid }">
+                  <form @submit.prevent="save">
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="12">
+                            <validation-provider
+                              v-slot="{ errors }"
+                              :name="$t('post_category.name')"
+                              rules="required"
+                            >
+                              <v-text-field
+                                @change="
+                                  if (editedItem.slug === '')
+                                    editedItem.slug = editedItem.name
+                                      .toLowerCase()
+                                      .normalize('NFD')
+                                      .replace(/đ/g, 'd')
+                                      .replace(/[\u0300-\u036f]/g, '')
+                                      .replace(/ /g, '-')
+                                      .replace(/[^\w-]+/g, '');
+                                "
+                                v-model="editedItem.name"
+                                :label="$t('post_category.name')"
+                                :error-messages="errors"
+                                required
+                              ></v-text-field>
+                            </validation-provider>
+                          </v-col>
+                          <v-col cols="12">
+                            <validation-provider
+                              v-slot="{ errors }"
+                              :name="$t('post_category.slug')"
+                            >
+                              <v-text-field
+                                v-model="editedItem.slug"
+                                :label="$t('post_category.slug')"
+                                :error-messages="errors"
+                                required
+                              ></v-text-field>
+                            </validation-provider>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
 
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="dialogCloseItemConfirm = true"
-                    >
-                      {{ $t("global.cancel") }}
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      type="submit"
-                      :disabled="invalid"
-                      text
-                    >
-                      {{ $t("global.ok") }}
-                    </v-btn>
-                  </v-card-actions>
-                </form>
-              </validation-observer>
-            </v-card>
-          </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="text-h5"
-                >Are you sure you want to delete this item?</v-card-title
-              >
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete"
-                  >Cancel</v-btn
-                >
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                  >OK</v-btn
-                >
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <v-dialog v-model="dialogCloseItemConfirm" max-width="500px">
-            <v-card>
-              <v-card-title class="text-h5"
-                >Are you sure you want to close this post?</v-card-title
-              >
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="dialogCloseItemConfirm = false"
-                  >Cancel</v-btn
-                >
-                <v-btn color="blue darken-1" text @click="close">OK</v-btn>
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.thumbnail="{ item }">
-        <v-img max-height="100" max-width="200" :src="item.thumbnail"></v-img>
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-      </template>
-      <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">
-          {{ $t("global.reset") }}
-        </v-btn>
-      </template>
-    </v-data-table>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="blue darken-1"
+                        type="submit"
+                        :disabled="invalid"
+                        text
+                      >
+                        {{ $t("global.save") }}
+                      </v-btn>
+                    </v-card-actions>
+                  </form>
+                </validation-observer>
+              </v-window-item>
+            </v-window>
+          </v-card>
+        </v-scroll-y-transition>
+      </v-col>
+    </v-row>
   </v-card>
 </template>
 
 <script>
-import postAPI from "@/api/post";
 import categoryAPI from "@/api/post-category";
-import Editor from "@/components/Editor";
-import Media from "@/components/Media";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
-  name: "Post",
+  name: "PostCategory",
   components: {
     ValidationProvider,
     ValidationObserver,
-    Editor,
-    Media,
   },
   data() {
     return {
-      search: "",
-      dialog: false,
-      dialogDelete: false,
-      dialogCloseItemConfirm: false,
-      posts: [],
+      step: 1,
+      active: [],
       categories: [],
       editedIndex: -1,
       editedItem: {
-        post_id: "",
-        title: "",
-        content: "Writing something...",
+        name: "",
         slug: "",
-        post_status: "private",
-        thumbnail: "https://picsum.photos/id/11/10/6",
-        author_id: 1,
-        post_categories: [],
+        parent_id: null,
       },
       defaultItem: {
-        post_id: "",
-        title: "",
-        content: "Writing something...",
+        name: "",
         slug: "",
-        post_status: "private",
-        thumbnail: "https://picsum.photos/id/11/10/6",
-        author_id: 1,
-        post_categories: [],
+        parent_id: null,
       },
-      image: null,
     };
   },
 
   computed: {
-    headers() {
-      return [
-        {
-          text: this.$t("post.post_id"),
-          align: "start",
-          sortable: false,
-          value: "id",
-        },
-        { text: this.$t("post.title"), value: "title" },
-        { text: this.$t("post.thumbnail"), value: "thumbnail" },
-        { text: this.$t("post.post_status"), value: "post_status" },
-        { text: this.$t("global.actions"), value: "actions", sortable: false },
-      ];
+    selectedCategory() {
+      if (!this.active.length) return undefined;
+      return this.active[0];
     },
-    formTitle() {
-      return this.editedIndex === -1
-        ? this.$t("post.new_item")
-        : this.$t("post.edit_item");
-    },
-  },
 
-  watch: {
-    image(value) {
-      this.editedItem.thumbnail = value.url;
-    },
-    dialog(val) {
-      val || this.close();
-    },
-    dialogDelete(val) {
-      val || this.closeDelete();
+    addBtnTitle() {
+      return this.selectedCategory
+        ? this.$t("post_category.new_sub_item")
+        : this.$t("post_category.new_item");
     },
   },
 
@@ -274,67 +151,42 @@ export default {
     await this.initialize();
   },
 
+  watch: {
+    active() {
+      this.step = 1;
+    },
+  },
+
   methods: {
     async initialize() {
       try {
-        this.fetchPosts();
         this.fetchCategories();
       } catch (err) {
         console.log(err);
       }
     },
-    async fetchPosts() {
-      const res = await postAPI.list();
-      this.posts = res.data.posts;
-    },
     async fetchCategories() {
       const res = await categoryAPI.list();
       this.categories = res.data.post_categories;
     },
-    editItem(item) {
-      this.editedIndex = this.posts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
-    deleteItem(item) {
-      this.editedIndex = this.posts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialogDelete = true;
-    },
-    deleteItemConfirm() {
-      this.posts.splice(this.editedIndex, 1);
-      this.closeDelete();
-    },
-    close() {
-      this.dialogCloseItemConfirm = false;
-      this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-        this.$refs.observer.reset();
-      });
-    },
-    closeDelete() {
-      this.dialogDelete = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
     async save() {
       try {
         if (this.editedIndex > -1) {
-          await postAPI.update(this.editedItem);
-          Object.assign(this.posts[this.editedIndex], this.editedItem);
+          await categoryAPI.update(this.editedItem);
+          Object.assign(this.categories[this.editedIndex], this.editedItem);
         } else {
-          await postAPI.create(this.editedItem);
-          this.posts.push(this.editedItem);
+          await categoryAPI.create(this.editedItem);
+          this.categories.push(this.editedItem);
         }
       } catch (e) {
         console.error(e);
       }
       this.close();
+    },
+    editItem(item) {
+      this.editedIndex = this.categories.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.step++;
     },
   },
 };

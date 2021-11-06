@@ -23,6 +23,10 @@ const mutations = {
   SET_EMAIL: (state, email) => {
     state.email = email;
   },
+
+  SET_AVATAR: (state, avatar) => {
+    state.avatar = avatar;
+  },
 };
 
 const actions = {
@@ -36,12 +40,19 @@ const actions = {
           commit("SET_TOKEN", data.access_token);
           commit("SET_NAME", data.user.name);
           commit("SET_EMAIL", data.user.email);
+          commit("SET_AVATAR", data.user.avatar);
           resolve();
         })
         .catch((error) => {
           reject(error);
         });
     });
+  },
+  logout({ commit }) {
+    commit("SET_TOKEN", "");
+    commit("SET_NAME", "");
+    commit("SET_EMAIL", "");
+    commit("SET_AVATAR", "");
   },
 };
 

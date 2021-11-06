@@ -34,10 +34,6 @@
             :to="childrentItem.link"
             link
           >
-            <!-- <v-list-item-icon>
-              <v-icon>{{ childrentItem.icon }}</v-icon>
-            </v-list-item-icon> -->
-
             <v-list-item-content>
               <v-list-item-title>{{ childrentItem.title }}</v-list-item-title>
             </v-list-item-content>
@@ -62,7 +58,12 @@ export default {
   data() {
     return {
       drawer: true,
-      items: [
+      mini: true,
+    };
+  },
+  computed: {
+    items() {
+      return [
         {
           title: this.$t("global.dashboard"),
           icon: "mdi-home-city",
@@ -90,9 +91,8 @@ export default {
           icon: "mdi-account-group",
           link: "/user",
         },
-      ],
-      mini: true,
-    };
+      ];
+    },
   },
 };
 </script>

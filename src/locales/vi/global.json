@@ -2,6 +2,7 @@
     "english": "Anh",
     "vietnam": "Việt Nam",
     "login": "Đăng nhập",
+    "logout": "Đăng xuất",
     "post": "Bài viết",
     "user": "Nhân viên",
     "media": "Media",
@@ -14,6 +15,9 @@
     "choose": "Chọn",
     "cancel": "Hủy",
     "ok": "OK",
+    "save": "Lưu",
     "or": "hoặc",
-    "created_at": "Ngày tạo"
+    "new_item": "Tạo {item}",
+    "created_at": "Ngày tạo",
+    "search": "Tìm kiếm"
 }
