@@ -27,7 +27,7 @@
             <v-window v-model="step">
               <v-window-item :value="1">
                 <v-card-text class="d-flex flex-column justify-center">
-                  <v-btn class="mb-3" color="primary" @click="step++">{{
+                  <v-btn class="mb-3" color="primary" @click="createItem()">{{
                     addBtnTitle
                   }}</v-btn>
                   <v-btn v-if="selectedCategory" @click="editItem(active[0])">{{
@@ -152,7 +152,8 @@ export default {
   },
 
   watch: {
-    active() {
+    active(value) {
+      this.editedItem.parent_id = value[0]?.id;
       this.step = 1;
     },
   },
@@ -173,15 +174,25 @@ export default {
       try {
         if (this.editedIndex > -1) {
           await categoryAPI.update(this.editedItem);
-          Object.assign(this.categories[this.editedIndex], this.editedItem);
         } else {
           await categoryAPI.create(this.editedItem);
-          this.categories.push(this.editedItem);
         }
+        await this.fetchCategories();
+        this.close();
       } catch (e) {
         console.error(e);
       }
-      this.close();
+    },
+    close() {
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+        this.$refs.observer.reset();
+      });
+    },
+    createItem() {
+      this.step++;
+      this.editedItem = this.defaultItem;
     },
     editItem(item) {
       this.editedIndex = this.categories.indexOf(item);
