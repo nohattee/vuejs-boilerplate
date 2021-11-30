@@ -30,6 +30,12 @@ const routes = [
         component: () => import("@/views/User.vue"),
         meta: { title: "User", icon: "user", affix: true },
       },
+      {
+        path: "purchased-item",
+        name: "PurchasedItem",
+        component: () => import("@/views/PurchasedItem.vue"),
+        meta: { title: "Purchased Item", icon: "purchased-item", affix: true },
+      },
     ],
   },
   {

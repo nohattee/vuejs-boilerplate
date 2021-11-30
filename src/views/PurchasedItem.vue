@@ -1,19 +1,26 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="users"
-    sort-by="full_name"
+    :items="purchasedItems"
+    :search="search"
+    sort-by="name"
     class="elevation-1"
   >
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>{{ $t("global.user") }}</v-toolbar-title>
+        <v-toolbar-title>{{ $t("global.purchased_item") }}</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" max-width="500px">
+        <v-dialog
+          v-model="dialog"
+          fullscreen
+          hide-overlay
+          transition="dialog-bottom-transition"
+          max-width="500px"
+        >
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-              {{ $t("user.new_item") }}
+              {{ $t("post.new_item") }}
             </v-btn>
           </template>
           <v-card>
@@ -31,12 +38,12 @@
                       <v-col cols="12">
                         <validation-provider
                           v-slot="{ errors }"
-                          :name="$t('user.full_name')"
+                          :name="$t('purchased_item.name')"
                           rules="required"
                         >
                           <v-text-field
-                            v-model="editedItem.full_name"
-                            :label="$t('user.full_name')"
+                            v-model="editedItem.name"
+                            :label="$t('purchased_item.name')"
                             :error-messages="errors"
                             required
                           ></v-text-field>
@@ -45,41 +52,11 @@
                       <v-col cols="12">
                         <validation-provider
                           v-slot="{ errors }"
-                          :name="$t('user.full_name')"
-                          rules="required|email"
+                          :name="$t('purchased_item.price')"
                         >
                           <v-text-field
-                            v-model="editedItem.email"
-                            :label="$t('user.email')"
-                            :error-messages="errors"
-                            required
-                          ></v-text-field>
-                        </validation-provider>
-                      </v-col>
-                      <v-col cols="12">
-                        <validation-provider
-                          v-slot="{ errors }"
-                          vid="password"
-                          :name="$t('user.password')"
-                          rules="required|min:6"
-                        >
-                          <v-text-field
-                            v-model="editedItem.password"
-                            :label="$t('user.password')"
-                            :error-messages="errors"
-                            required
-                          ></v-text-field>
-                        </validation-provider>
-                      </v-col>
-                      <v-col cols="12">
-                        <validation-provider
-                          v-slot="{ errors }"
-                          :name="$t('user.password_confirmation')"
-                          rules="confirmed:password"
-                        >
-                          <v-text-field
-                            v-model="editedItem.password_confirmation"
-                            :label="$t('user.password_confirmation')"
+                            v-model="editedItem.price"
+                            :label="$t('purchased_item.price')"
                             :error-messages="errors"
                             required
                           ></v-text-field>
@@ -91,7 +68,11 @@
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="close">
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="dialogCloseItemConfirm = true"
+                  >
                     {{ $t("global.cancel") }}
                   </v-btn>
                   <v-btn
@@ -124,6 +105,24 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-dialog v-model="dialogCloseItemConfirm" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5"
+              >Are you sure you want to close this post?</v-card-title
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="dialogCloseItemConfirm = false"
+                >Cancel</v-btn
+              >
+              <v-btn color="blue darken-1" text @click="close">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-toolbar>
     </template>
     <template v-slot:item.actions="{ item }">
@@ -139,33 +138,32 @@
 </template>
 
 <script>
-import userAPI from "@/api/user";
+import purchasedItemAPI from "@/api/purchased-item";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
-  name: "User",
+  name: "PurchasedItem",
   components: {
     ValidationProvider,
     ValidationObserver,
   },
   data() {
     return {
+      search: "",
       dialog: false,
       dialogDelete: false,
-      users: [],
-      desserts: [],
+      dialogCloseItemConfirm: false,
+      purchasedItems: [],
       editedIndex: -1,
       editedItem: {
-        user_id: "",
-        full_name: "",
-        email: "",
-        password: "",
+        purchased_item_id: "",
+        name: "",
+        price: 0,
       },
       defaultItem: {
-        user_id: "",
-        full_name: "",
-        email: "",
-        password: "",
+        purchased_item_id: "",
+        name: "",
+        price: 0,
       },
     };
   },
@@ -174,20 +172,19 @@ export default {
     headers() {
       return [
         {
-          text: this.$t("user.user_id"),
+          text: this.$t("purchased_item.purchased_item_id"),
           align: "start",
           sortable: false,
-          value: "user_id",
+          value: "id",
         },
-        { text: this.$t("user.full_name"), value: "name" },
-        { text: this.$t("user.email"), value: "email" },
-        { text: this.$t("global.actions"), value: "actions", sortable: false },
+        { text: this.$t("purchased_item.name"), value: "name" },
+        { text: this.$t("purchased_item.price"), value: "price" },
       ];
     },
     formTitle() {
       return this.editedIndex === -1
-        ? this.$t("user.new_item")
-        : this.$t("user.edit_item");
+        ? this.$t("purchased_item.new_item")
+        : this.$t("purchased_item.edit_item");
     },
   },
 
@@ -206,45 +203,39 @@ export default {
 
   methods: {
     async initialize() {
-      const res = await userAPI.list();
-      this.users = res.data.users;
+      try {
+        this.fetchPurchasedItems();
+      } catch (err) {
+        console.log(err);
+      }
     },
-
+    async fetchPurchasedItems() {
+      const res = await purchasedItemAPI.list();
+      this.purchasedItems = res.data.items;
+    },
     editItem(item) {
-      this.editedIndex = this.users.indexOf(item);
-      this.editedItem = Object.assign(
-        {},
-        {
-          ...item,
-          password: "",
-          password_confirmation: "",
-        }
-      );
+      this.editedIndex = this.purchasedItems.indexOf(item);
+      this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
-
     deleteItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.purchasedItems.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
-
     deleteItemConfirm() {
-      this.desserts.splice(this.editedIndex, 1);
+      this.purchasedItems.splice(this.editedIndex, 1);
       this.closeDelete();
     },
-
     close() {
+      this.dialogCloseItemConfirm = false;
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedItem.password = "";
-        this.editedItem.password_confirmation = "";
         this.editedIndex = -1;
         this.$refs.observer.reset();
       });
     },
-
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
@@ -256,11 +247,11 @@ export default {
     async save() {
       try {
         if (this.editedIndex > -1) {
-          await userAPI.update(this.editedItem);
-          Object.assign(this.users[this.editedIndex], this.editedItem);
+          await purchasedItemAPI.update(this.editedItem);
+          Object.assign(this.purchasedItems[this.editedIndex], this.editedItem);
         } else {
-          await userAPI.create(this.editedItem);
-          this.users.push(this.editedItem);
+          await purchasedItemAPI.create(this.editedItem);
+          this.purchasedItems.push(this.editedItem);
         }
       } catch (e) {
         console.error(e);

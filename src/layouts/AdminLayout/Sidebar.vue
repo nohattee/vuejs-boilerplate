@@ -91,6 +91,11 @@ export default {
           icon: "mdi-account-group",
           link: "/user",
         },
+        {
+          title: this.$t("global.purchased_item"),
+          icon: "mdi-account-group",
+          link: "/purchased-item",
+        },
       ];
     },
   },
