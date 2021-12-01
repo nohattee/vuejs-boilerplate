@@ -1,4 +1,10 @@
-import { required, email, min, confirmed } from "vee-validate/dist/rules";
+import {
+  min,
+  email,
+  numeric,
+  required,
+  confirmed,
+} from "vee-validate/dist/rules";
 import { extend, configure } from "vee-validate";
 import i18n from "@/plugins/i18n";
 
@@ -14,6 +20,8 @@ configure({
 extend("required", required);
 
 extend("email", email);
+
+extend("numeric", numeric);
 
 extend("min", min);
 

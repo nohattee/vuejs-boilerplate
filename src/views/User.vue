@@ -2,7 +2,7 @@
   <v-data-table
     :headers="headers"
     :items="users"
-    sort-by="full_name"
+    sort-by="name"
     class="elevation-1"
   >
     <template v-slot:top>
@@ -156,13 +156,13 @@ export default {
       desserts: [],
       editedIndex: -1,
       editedItem: {
-        user_id: "",
+        id: "",
         full_name: "",
         email: "",
         password: "",
       },
       defaultItem: {
-        user_id: "",
+        id: "",
         full_name: "",
         email: "",
         password: "",
@@ -177,7 +177,7 @@ export default {
           text: this.$t("user.user_id"),
           align: "start",
           sortable: false,
-          value: "user_id",
+          value: "id",
         },
         { text: this.$t("user.full_name"), value: "name" },
         { text: this.$t("user.email"), value: "email" },

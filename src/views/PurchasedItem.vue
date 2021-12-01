@@ -11,16 +11,10 @@
         <v-toolbar-title>{{ $t("global.purchased_item") }}</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
-        <v-dialog
-          v-model="dialog"
-          fullscreen
-          hide-overlay
-          transition="dialog-bottom-transition"
-          max-width="500px"
-        >
+        <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-              {{ $t("post.new_item") }}
+              {{ $t("purchased_item.new_item") }}
             </v-btn>
           </template>
           <v-card>
@@ -53,6 +47,7 @@
                         <validation-provider
                           v-slot="{ errors }"
                           :name="$t('purchased_item.price')"
+                          rules="required|numeric"
                         >
                           <v-text-field
                             v-model="editedItem.price"
@@ -68,11 +63,7 @@
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="dialogCloseItemConfirm = true"
-                  >
+                  <v-btn color="blue darken-1" text @click="close">
                     {{ $t("global.cancel") }}
                   </v-btn>
                   <v-btn
@@ -105,29 +96,14 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="dialogCloseItemConfirm" max-width="500px">
-          <v-card>
-            <v-card-title class="text-h5"
-              >Are you sure you want to close this post?</v-card-title
-            >
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="dialogCloseItemConfirm = false"
-                >Cancel</v-btn
-              >
-              <v-btn color="blue darken-1" text @click="close">OK</v-btn>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
       </v-toolbar>
     </template>
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
       <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+    </template>
+    <template v-slot:item.price="{ item }">
+      {{ formatPrice(item.price) }}₫
     </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="initialize">
@@ -152,33 +128,30 @@ export default {
       search: "",
       dialog: false,
       dialogDelete: false,
-      dialogCloseItemConfirm: false,
       purchasedItems: [],
       editedIndex: -1,
       editedItem: {
-        purchased_item_id: "",
+        id: "",
         name: "",
-        price: 0,
+        price: "",
       },
       defaultItem: {
-        purchased_item_id: "",
+        id: "",
         name: "",
-        price: 0,
+        price: "",
       },
     };
   },
-
   computed: {
     headers() {
       return [
         {
-          text: this.$t("purchased_item.purchased_item_id"),
+          text: this.$t("purchased_item.name"),
           align: "start",
-          sortable: false,
-          value: "id",
+          value: "name",
         },
-        { text: this.$t("purchased_item.name"), value: "name" },
         { text: this.$t("purchased_item.price"), value: "price" },
+        { text: this.$t("global.actions"), value: "actions", sortable: false },
       ];
     },
     formTitle() {
@@ -228,7 +201,6 @@ export default {
       this.closeDelete();
     },
     close() {
-      this.dialogCloseItemConfirm = false;
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
@@ -242,6 +214,10 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
+    },
+    formatPrice(value) {
+      let val = (value / 1).toFixed(2).replace(".", ",");
+      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     },
 
     async save() {
