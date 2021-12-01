@@ -93,7 +93,7 @@ export default {
         },
         {
           title: this.$t("global.purchased_item"),
-          icon: "mdi-account-group",
+          icon: "mdi-cart",
           link: "/purchased-item",
         },
       ];
