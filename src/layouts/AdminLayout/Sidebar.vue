@@ -2,7 +2,7 @@
   <v-navigation-drawer app permanent v-model="drawer" :mini-variant.sync="mini">
     <v-list-item class="px-2">
       <v-list-item-avatar>
-        <v-img src="@/assets/admin.jpg"></v-img>
+        <v-img :src="$store.state.currentUser.avatar"></v-img>
       </v-list-item-avatar>
 
       <v-list-item-title>{{ $store.state.currentUser.name }}</v-list-item-title>
@@ -15,15 +15,39 @@
     <v-divider></v-divider>
 
     <v-list dense>
-      <v-list-item v-for="item in items" :key="item.title" :to="item.link" link>
-        <v-list-item-icon>
-          <v-icon>{{ item.icon }}</v-icon>
-        </v-list-item-icon>
+      <template v-for="(item, idx) in items">
+        <v-list-group
+          v-if="Array.isArray(item.children)"
+          :key="idx"
+          :prepend-icon="item.icon"
+          no-action
+        >
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
+          </template>
 
-        <v-list-item-content>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+          <v-list-item
+            v-for="childrentItem in item.children"
+            :key="childrentItem.title"
+            :to="childrentItem.link"
+            link
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ childrentItem.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+        <v-list-item v-else :key="item.title" :to="item.link" link>
+          <v-list-item-icon>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </template>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -34,11 +58,33 @@ export default {
   data() {
     return {
       drawer: true,
-      items: [
+      mini: true,
+    };
+  },
+  computed: {
+    items() {
+      return [
         {
           title: this.$t("global.dashboard"),
           icon: "mdi-home-city",
           link: "/",
+        },
+        {
+          title: this.$t("global.cms"),
+          icon: "mdi-post",
+          link: "/cms",
+          children: [
+            {
+              title: this.$t("global.post"),
+              icon: "mdi-post",
+              link: "/cms/post",
+            },
+            {
+              title: this.$t("global.category"),
+              icon: "mdi-post",
+              link: "/cms/category",
+            },
+          ],
         },
         {
           title: this.$t("global.user"),
@@ -46,13 +92,12 @@ export default {
           link: "/user",
         },
         {
-          title: this.$t("global.post"),
-          icon: "mdi-post",
-          link: "/post",
+          title: this.$t("global.purchased_item"),
+          icon: "mdi-account-group",
+          link: "/purchased-item",
         },
-      ],
-      mini: true,
-    };
+      ];
+    },
   },
 };
 </script>

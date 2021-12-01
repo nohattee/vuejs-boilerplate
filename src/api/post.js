@@ -11,15 +11,15 @@ export default {
     return request.post(`${API_RESOURCE}`, data);
   },
 
-  get(user_id) {
-    return request.get(`${API_RESOURCE}/${user_id}`);
+  get(post_id) {
+    return request.get(`${API_RESOURCE}/${post_id}`);
   },
 
-  update(user_id, data) {
-    return request.put(`${API_RESOURCE}/${user_id}`, data);
+  update(post_id, data) {
+    return request.put(`${API_RESOURCE}/${post_id}`, data);
   },
 
-  delete(user_id) {
-    return request.delete(`${API_RESOURCE}/${user_id}`);
+  delete(post_id) {
+    return request.delete(`${API_RESOURCE}/${post_id}`);
   },
 };

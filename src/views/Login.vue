@@ -46,24 +46,24 @@
                           @click:append="showPassword = !showPassword"
                         ></v-text-field>
                       </validation-provider>
-                      <v-row justify="space-around">
-                        <v-col cols="3">
-                          <v-btn
-                            color="primary"
-                            type="submit"
-                            :loading="loading"
-                            :disabled="invalid"
-                          >
-                            {{ $t("global.login") }}
-                          </v-btn>
-                        </v-col>
-                        <v-col cols="4">
-                          <Locale />
-                        </v-col>
+                      <v-row justify="center">
+                        <v-btn
+                          color="primary"
+                          type="submit"
+                          :loading="loading"
+                          :disabled="invalid"
+                        >
+                          {{ $t("global.login") }}
+                        </v-btn>
                       </v-row>
                     </form>
                   </validation-observer>
                 </v-card-text>
+                <v-card-actions>
+                  <div class="locale">
+                    <Locale />
+                  </div>
+                </v-card-actions>
               </v-card>
             </v-container>
           </v-col>
@@ -135,3 +135,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.locale {
+  width: 100px;
+}
+</style>

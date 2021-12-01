@@ -2,15 +2,22 @@
     "english": "Anh",
     "vietnam": "Việt Nam",
     "login": "Đăng nhập",
+    "logout": "Đăng xuất",
     "post": "Bài viết",
     "user": "Nhân viên",
     "media": "Media",
     "dashboard": "Bảng điều khiển",
+    "cms": "CMS",
+    "category": "Danh mục",
+    "post_category": "Danh mục bài viết",
     "actions": "Hành động",
     "reset": "Làm mới",
     "choose": "Chọn",
     "cancel": "Hủy",
     "ok": "OK",
+    "save": "Lưu",
     "or": "hoặc",
-    "created_at": "Ngày tạo"
+    "new_item": "Tạo {item}",
+    "created_at": "Ngày tạo",
+    "search": "Tìm kiếm"
 }

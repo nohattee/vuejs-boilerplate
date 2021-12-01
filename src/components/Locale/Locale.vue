@@ -5,9 +5,14 @@
     item-text="name"
     item-value="value"
     dense
-    outlined
+    v-bind="$attrs"
+    prepend-inner-icon="mdi-translate"
     @change="setLocale(selectedLocale)"
-  ></v-select>
+  >
+    <template v-slot:selection="{ item }">
+      {{ item.value.toUpperCase() }}
+    </template>
+  </v-select>
 </template>
 
 <script>

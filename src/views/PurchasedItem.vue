@@ -1,13 +1,14 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="posts"
-    sort-by="calories"
+    :items="purchasedItems"
+    :search="search"
+    sort-by="name"
     class="elevation-1"
   >
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>{{ $t("global.post") }}</v-toolbar-title>
+        <v-toolbar-title>{{ $t("global.purchased_item") }}</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-dialog
@@ -37,22 +38,12 @@
                       <v-col cols="12">
                         <validation-provider
                           v-slot="{ errors }"
-                          :name="$t('post.title')"
+                          :name="$t('purchased_item.name')"
                           rules="required"
                         >
                           <v-text-field
-                            @change="
-                              if (editedItem.slug === '')
-                                editedItem.slug = editedItem.title
-                                  .toLowerCase()
-                                  .normalize('NFD')
-                                  .replace(/đ/g, 'd')
-                                  .replace(/[\u0300-\u036f]/g, '')
-                                  .replace(/ /g, '-')
-                                  .replace(/[^\w-]+/g, '');
-                            "
-                            v-model="editedItem.title"
-                            :label="$t('post.title')"
+                            v-model="editedItem.name"
+                            :label="$t('purchased_item.name')"
                             :error-messages="errors"
                             required
                           ></v-text-field>
@@ -61,41 +52,14 @@
                       <v-col cols="12">
                         <validation-provider
                           v-slot="{ errors }"
-                          :name="$t('post.slug')"
+                          :name="$t('purchased_item.price')"
                         >
                           <v-text-field
-                            v-model="editedItem.slug"
-                            :label="$t('post.slug')"
+                            v-model="editedItem.price"
+                            :label="$t('purchased_item.price')"
                             :error-messages="errors"
                             required
                           ></v-text-field>
-                        </validation-provider>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-label>{{ $t("post.thumbnail") }}</v-label>
-                        <v-input>
-                          <media v-model="image" />
-                        </v-input>
-                        <v-img
-                          :src="editedItem.thumbnail"
-                          lazy-src="https://picsum.photos/id/11/10/6"
-                          max-height="150"
-                          max-width="250"
-                          aspect-ratio="1"
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <validation-provider
-                          v-slot="{ errors }"
-                          :name="$t('post.content')"
-                          rules="required|min:200"
-                        >
-                          <editor
-                            :label="$t('post.content')"
-                            v-model="editedItem.content"
-                            :error-messages="errors"
-                            required
-                          />
                         </validation-provider>
                       </v-col>
                     </v-row>
@@ -161,9 +125,6 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <template v-slot:item.thumbnail="{ item }">
-      <v-img max-height="100" max-width="200" :src="item.thumbnail"></v-img>
-    </template>
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
       <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
@@ -177,49 +138,33 @@
 </template>
 
 <script>
-import postAPI from "@/api/post";
-import categoryAPI from "@/api/post-category";
-import Editor from "@/components/Editor";
-import Media from "@/components/Media";
+import purchasedItemAPI from "@/api/purchased-item";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
-  name: "Post",
+  name: "PurchasedItem",
   components: {
     ValidationProvider,
     ValidationObserver,
-    Editor,
-    Media,
   },
   data() {
     return {
+      search: "",
       dialog: false,
       dialogDelete: false,
       dialogCloseItemConfirm: false,
-      posts: [],
-      categories: [],
+      purchasedItems: [],
       editedIndex: -1,
       editedItem: {
-        post_id: "",
-        title: "",
-        content: "Writing something...",
-        slug: "",
-        post_status: "private",
-        thumbnail: "https://picsum.photos/id/11/10/6",
-        author_id: 1,
-        post_categories: [],
+        purchased_item_id: "",
+        name: "",
+        price: 0,
       },
       defaultItem: {
-        post_id: "",
-        title: "",
-        content: "Writing something...",
-        slug: "",
-        post_status: "private",
-        thumbnail: "https://picsum.photos/id/11/10/6",
-        author_id: 1,
-        post_categories: [],
+        purchased_item_id: "",
+        name: "",
+        price: 0,
       },
-      image: null,
     };
   },
 
@@ -227,28 +172,23 @@ export default {
     headers() {
       return [
         {
-          text: this.$t("post.post_id"),
+          text: this.$t("purchased_item.purchased_item_id"),
           align: "start",
           sortable: false,
           value: "id",
         },
-        { text: this.$t("post.title"), value: "title" },
-        { text: this.$t("post.thumbnail"), value: "thumbnail" },
-        { text: this.$t("post.post_status"), value: "post_status" },
-        { text: this.$t("global.actions"), value: "actions", sortable: false },
+        { text: this.$t("purchased_item.name"), value: "name" },
+        { text: this.$t("purchased_item.price"), value: "price" },
       ];
     },
     formTitle() {
       return this.editedIndex === -1
-        ? this.$t("post.new_item")
-        : this.$t("post.edit_item");
+        ? this.$t("purchased_item.new_item")
+        : this.$t("purchased_item.edit_item");
     },
   },
 
   watch: {
-    image(value) {
-      this.editedItem.thumbnail = value.url;
-    },
     dialog(val) {
       val || this.close();
     },
@@ -264,32 +204,27 @@ export default {
   methods: {
     async initialize() {
       try {
-        this.fetchPosts();
-        this.fetchCategories();
+        this.fetchPurchasedItems();
       } catch (err) {
         console.log(err);
       }
     },
-    async fetchPosts() {
-      const res = await postAPI.list();
-      this.posts = res.data.posts;
-    },
-    async fetchCategories() {
-      const res = await categoryAPI.list();
-      this.categories = res.data.post_categories;
+    async fetchPurchasedItems() {
+      const res = await purchasedItemAPI.list();
+      this.purchasedItems = res.data.items;
     },
     editItem(item) {
-      this.editedIndex = this.posts.indexOf(item);
+      this.editedIndex = this.purchasedItems.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem(item) {
-      this.editedIndex = this.posts.indexOf(item);
+      this.editedIndex = this.purchasedItems.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
     deleteItemConfirm() {
-      this.posts.splice(this.editedIndex, 1);
+      this.purchasedItems.splice(this.editedIndex, 1);
       this.closeDelete();
     },
     close() {
@@ -312,11 +247,11 @@ export default {
     async save() {
       try {
         if (this.editedIndex > -1) {
-          await postAPI.update(this.editedItem);
-          Object.assign(this.posts[this.editedIndex], this.editedItem);
+          await purchasedItemAPI.update(this.editedItem);
+          Object.assign(this.purchasedItems[this.editedIndex], this.editedItem);
         } else {
-          await postAPI.create(this.editedItem);
-          this.posts.push(this.editedItem);
+          await purchasedItemAPI.create(this.editedItem);
+          this.purchasedItems.push(this.editedItem);
         }
       } catch (e) {
         console.error(e);

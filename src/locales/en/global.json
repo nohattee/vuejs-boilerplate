@@ -2,15 +2,22 @@
     "english": "English",
     "vietnam": "Vietnam",
     "login": "Login",
+    "logout": "Logout",
     "user": "User",
     "post": "Post",
     "media": "Media",
     "dashboard": "Dashboard",
+    "cms": "CMS",
+    "category": "Category",
+    "post_category": "Post Category",
     "actions": "Actions",
     "global": "Reset",
     "choose": "Choose",
     "cancel": "Cancel",
     "ok": "OK",
+    "save": "Save",
     "or": "or",
-    "created_at": "Created At"
+    "new_item": "New {item}",
+    "created_at": "Created At",
+    "search": "Search"
 }
