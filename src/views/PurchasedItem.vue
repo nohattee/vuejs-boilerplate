@@ -3,7 +3,8 @@
     :headers="headers"
     :items="purchasedItems"
     :search="search"
-    sort-by="name"
+    sort-by="created_at"
+    sort-desc="true"
     class="elevation-1"
   >
     <template v-slot:top>
@@ -105,6 +106,9 @@
     <template v-slot:item.price="{ item }">
       {{ formatPrice(item.price) }}₫
     </template>
+    <template v-slot:item.created_at="{ item }">
+      {{ new Date(item.created_at).toLocaleString() }}
+    </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="initialize">
         {{ $t("global.reset") }}
@@ -151,6 +155,7 @@ export default {
           value: "name",
         },
         { text: this.$t("purchased_item.price"), value: "price" },
+        { text: this.$t("global.created_at"), value: "created_at" },
         { text: this.$t("global.actions"), value: "actions", sortable: false },
       ];
     },
